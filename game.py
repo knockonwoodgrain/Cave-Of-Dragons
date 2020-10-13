@@ -43,7 +43,74 @@ class Player:
         self.Verb = ""
         self.Obj2  = ""
         self.Obj  = ""
+    
+    def Checkpointsave(self):
+        checkpoint = open("checkpoint.txt", "w")
+        newfile = {
+            "stones" : 0,
+            "screw" : False,
+            "smokes" : 0,
+            "key" : False,
+            "rkey" : False,
+            "gkey" : False,
+            "firester" : False
+        }
+        if self.Stones == 5 :
+            newfile["stones"] = 5
+        elif self.Stones == 0 :
+            newfile["stones"] = 0
+        elif self.Screw == True :
+            newfile["screw"] = True
+        elif self.Screw == False :
+            newfile["screw"] = False
+        elif self.Smokes == 5 :
+            newfile["smokes"] = 5
+        elif self.Smokes == 0 :
+            newfile["smokes"] = 0
+        elif self.Key == True :
+            newfile["key"] = True
+        elif self.Key == False :
+            newfile["key"] = False
+        elif self.RKey == True :
+            newfile["rkey"] = True
+        elif self.RKey == False :
+            newfile["rkey"] = False
+        elif self.GKey == True :
+            newfile["gkey"] = True
+        elif self.GKey == False :
+            newfile["gkey"] = False
+        elif self.Firester == True :
+            newfile["firester"] = True
+        elif self.Firester == False :
+            newfile["firester"] = False
+        print(newfile) 
+        checkpoint.write(str(newfile))
 
+    def CheckpointLoad(self):
+        savefile = input("Do you want to load latest save file or start from new?\n1)Load save file-------1\n2)Start new game-------2\n>")
+        if savefile == "1" :
+            print("loading save file")
+            checkpoint = open("checkpoint.txt", "r")
+            dict = checkpoint.read()
+            if dict[0] == 5 :
+                self.Stones = 5
+            elif dict[1] == True :
+                self.Screw = True
+            elif dict[2] == 5 :
+                self.Smokes = 5
+            elif dict[3] == True :
+                self.Key = True
+            elif dict[4] == True :
+                self.RKey = True
+            elif dict[5] == True :
+                self.Gkey = True
+            elif dict[6] == True :
+                self.Firester = True
+            self.Entrance()
+        elif savefile == "2" :
+            print("starting new game")
+            self.Entrance()
+    
     def Decode(self,x):
         words = x.split(" ")
         if 'to' in words :
