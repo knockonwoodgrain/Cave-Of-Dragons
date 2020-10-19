@@ -1,3 +1,4 @@
+from json.decoder import JSONDecodeError
 from os import error
 import json
 
@@ -47,7 +48,7 @@ class Player:
         self.Firester = Firester
     
     def Checkpointsave(self):
-        checkpoint = open("checkpoint.txt", "w")
+        checkpoint = open("checkpoint.json", "w")
         newfile = {
             "stones" : 0,
             "screw" : False,
@@ -57,58 +58,58 @@ class Player:
             "gkey" : False,
             "firester" : False
         }
-        if self.Stones == 5 :
-            newfile["stones"] = 5
-        elif self.Stones == 0 :
-            newfile["stones"] = 0
-        elif self.Screw == True :
-            newfile["screw"] = True
-        elif self.Screw == False :
-            newfile["screw"] = False
-        elif self.Smokes == 5 :
-            newfile["smokes"] = 5
-        elif self.Smokes == 0 :
-            newfile["smokes"] = 0
-        elif self.Key == True :
-            newfile["key"] = True
-        elif self.Key == False :
-            newfile["key"] = False
-        elif self.RKey == True :
-            newfile["rkey"] = True
-        elif self.RKey == False :
-            newfile["rkey"] = False
-        elif self.GKey == True :
-            newfile["gkey"] = True
-        elif self.GKey == False :
-            newfile["gkey"] = False
-        elif self.Firester == True :
-            newfile["firester"] = True
-        elif self.Firester == False :
-            newfile["firester"] = False
-        print(newfile) 
-        checkpoint.write(str(newfile))
+        try :
+            newfile["stones"] = self.Stones
+            newfile["screw"] = self.Screw
+            newfile["smokes"] = self.Smokes
+            newfile["key"] = self.Key
+            newfile["rkey"] = self.RKey
+            newfile["gkey"] = self.Gkey
+            newfile["firester"] =self.Firester
+        except KeyError :
+            print("I tried man")
+        print(self.Key)
+        checkpointjson = json.dumps(newfile)
+        checkpoint.write(checkpointjson)
+        checkpoint.close()
 
     def CheckpointLoad(self):
         savefile = input("Do you want to load latest save file or start from new?\n1)Load save file-------1\n2)Start new game-------2\n>")
         if savefile == "1" :
             print("loading save file")
-            checkpoint = open("checkpoint.txt", "r")
-            dict = checkpoint.read()
-            if dict[0] == 5 :
-                self.Stones = 5
-            elif dict[1] == True :
-                self.Screw = True
-            elif dict[2] == 5 :
-                self.Smokes = 5
-            elif dict[3] == True :
-                self.Key = True
-            elif dict[4] == True :
-                self.RKey = True
-            elif dict[5] == True :
-                self.Gkey = True
-            elif dict[6] == True :
-                self.Firester = True
+            try :
+                checkpoint = open("checkpoint.json", "r")
+            except FileNotFoundError :
+                print("Save file not found, making new file, please don't edit it")
+                checkpoint1 = open("checkpoint.json", "w")
+                newfile = {
+                    "stones" : 0,
+                    "screw" : False,
+                    "smokes" : 0,
+                    "key" : False,
+                    "rkey" : False,
+                    "gkey" : False,
+                    "firester" : False
+                }
+                checkpoint1json = json.dumps(newfile)
+                checkpoint1.write(checkpoint1json)
+                checkpoint1.close()
+                checkpoint = open("checkpoint.json", "r")
+            data = checkpoint.read()
+            dict = json.loads(data)
+            print(dict)
+            try:
+                self.Stones = dict["stones"]
+                self.Screw = dict["screw"]
+                self.Smokes = dict["smokes"]
+                self.Key = dict["key"]
+                self.RKey = dict["rkey"]
+                self.Gkey = dict["gkey"]
+                self.Firester = dict["firester"]
+            except KeyError:
+              print("Little Boy tried to hack :D")
             self.Entrance()
+            
         elif savefile == "2" :
             print("starting new game")
             self.Entrance()
@@ -269,11 +270,11 @@ class Player:
         print('\033[0m' + 'you have entered the "firester" room where the great firester is\nhe has a secret, if you hit him with your hands you can easyly\ndefeat him')
         while True :
             x = input(">")
-            self.Decode(x)
-            if not self.Firester:
-                if self.Verb.lower() in ("kill", "hit") and self.Obj.lower() in ("firester", "him"):
-                    print('you defeated the fire monster, it leaves a key , take it to open the chest in entrance')
-                    self.Firester = True
+            self.Decode(x)       
+            if self.Verb.lower() in ("kill", "hit") and self.Obj.lower() in ("firester", "him"):
+                    if not self.Firester:
+                        print('you defeated the fire monster, it leaves a key , take it to open the chest in entrance')
+                        self.Firester = True
                     x = input(">")
                     self.Decode(x)
                     if self.Verb.lower() in ("take" , "t") and self.Obj.lower() in "key":
@@ -281,7 +282,7 @@ class Player:
                             print("You already have the key")
                         elif self.Key == False :
                             print('key taken')
-                            self.Key = True
+                        self.Key = True
             elif self.Verb.lower() in ("go", "north") and self.Obj.lower() in ("north", "n"):
                 print('there is a wall here')
             elif self.Verb.lower() in ("go", "south") and self.Obj.lower() in ("south", "s"):
@@ -296,6 +297,7 @@ class Player:
                 self.Checkpointsave()
             elif self.Firester:
                 print("He is already dead")
+                self.Firester = True
                 break
             else :
                 print('You cannot do that')
