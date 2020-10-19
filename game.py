@@ -1,12 +1,13 @@
-Title = """
- _______  _______           _______    _______  _______    ______   _______  _______  _______  _______  _        _______
-(  ____ \\(  ___  )|\\     /|(  ____ \\  (  ___  )(  ____ \\  (  __  \\ (  ____ )(  ___  )(  ____ \\(  ___  )( (    /|(  ____ \\
-| (    \\/| (   ) || )   ( || (    \\/  | (   ) || (    \\/  | (  \  )| (    )|| (   ) || (    \\/| (   ) ||  \\  ( || (    \\/
-| |      | (___) || |   | || (__      | |   | || (__      | |   ) || (____)|| (___) || |      | |   | ||   \\ | || (_____
-| |      |  ___  |( (   ) )|  __)     | |   | ||  __)     | |   | ||     __)|  ___  || | ____ | |   | || (\\ \\) |(_____  )
-| |      | (   ) | \\ \\_/ / | (        | |   | || (        | |   ) || (\\ (   | (   ) || | \\_  )| |   | || | \\   |      ) |
-| (____/\\| )   ( |  \\   /  | (____/\\  | (___) || )        | (__/  )| ) \\ \\__| )   ( || (___) || (___) || )  \\  |/\\____) |
-(_______/|/     \\|   \\_/   (_______/  (_______)|/(______/ |/   \\__/|/     \|(_______)(_______)|/    )_)\\_______)"""
+from os import error
+import json
+
+print("""
+ ██████  █████  ██    ██ ███████      ██████  ███████     ██████  ██████   █████   ██████   ██████  ███    ██ ███████ 
+██      ██   ██ ██    ██ ██          ██    ██ ██          ██   ██ ██   ██ ██   ██ ██       ██    ██ ████   ██ ██      
+██      ███████ ██    ██ █████       ██    ██ █████       ██   ██ ██████  ███████ ██   ███ ██    ██ ██ ██  ██ ███████ 
+██      ██   ██  ██  ██  ██          ██    ██ ██          ██   ██ ██   ██ ██   ██ ██    ██ ██    ██ ██  ██ ██      ██ 
+ ██████ ██   ██   ████   ███████      ██████  ██          ██████  ██   ██ ██   ██  ██████   ██████  ██   ████ ███████ 
+""")
 
 
 Map = """
@@ -31,7 +32,7 @@ Map = """
 """
 
 class Player:
-    def __init__(self, health: int = 100, Stones: int = 0, Smokes: int = 0, Screw: bool = False, Key: bool = False, RedKey: bool = False, GreenKey: bool = False) -> None:
+    def __init__(self, health: int = 100, Stones: int = 0, Smokes: int = 0, Screw: bool = False, Key: bool = False, RedKey: bool = False, GreenKey: bool = False, Firester: bool = False) -> None:
         self.health = health
         self.Stones = Stones
         self.Smokes = Smokes
@@ -43,6 +44,7 @@ class Player:
         self.Verb = ""
         self.Obj2  = ""
         self.Obj  = ""
+        self.Firester = Firester
     
     def Checkpointsave(self):
         checkpoint = open("checkpoint.txt", "w")
@@ -110,7 +112,7 @@ class Player:
         elif savefile == "2" :
             print("starting new game")
             self.Entrance()
-    
+
     def Decode(self,x):
         words = x.split(" ")
         if 'to' in words :
@@ -139,6 +141,8 @@ class Player:
             print('You have taken the smoke grenades you can use them to skip fighting from monsters of you dont want to')
         elif self.Verb.loewr() in ("show" , "map") and self.Obj.lower() in "map":
                 print(Map)
+        elif self.Verb.lower() in ("quit"):
+                self.Checkpointsave()
         else :
             print('I don\'t know what you typed but it\'s not take smokes, so anyway you take them\nnow you have five smokes you can use them to skip fight\'s')
 
@@ -154,6 +158,8 @@ class Player:
                 print("Okay you fought him and won, because you have the sword, right?")
             elif self.Verb.lower() in ("show" , "map") and self.Obj.lower() in "map":
                 print(Map)
+            elif self.Verb.lower() in ("quit"):
+                self.Checkpointsave()
             else:
                 print("My dumb code couldn't really understand the thing you wrote, just write yes or no")
         elif not self.Screw:
@@ -180,6 +186,8 @@ class Player:
                         print("Still in development")
                     elif self.Verb.lower() in ("show", "map") and self.Obj.lower() in "map":
                         print(Map)
+                    elif self.Verb.lower() in ("quit"):
+                        self.Checkpointsave()
                     else:
                         print('just put take sword(If you dont have it)\nyou can only go south,east and north')
                 elif not self.Gkey:
@@ -192,28 +200,34 @@ class Player:
             x = input(">")
             self.Decode(x)
             if self.Verb.lower() in ("throw" , "use") and self.Obj.lower() in "stones":
-                if self.Stones:
-                    x = input(">")
-                    self.Decode(x)
-                    if self.Verb.lower() in ('y', "yes"):
-                        print('The guard is now distracted\ngo to the drawer')
+                if self.RKey == True and self.GKey == True :
+                    print("You already have the keys dumbass")
+                elif self.RKey == False and self.GKey == False :
+                    if self.Stones == 5:
+                        print("so you want to distract the guard?")
                         x = input(">")
                         self.Decode(x)
-                        if self.Verb.lower() in ("go", "drawer") and self.Obj.lower() in ("to", "drawer") and self.Obj2 in "drawer":
-                            print('you have reached the drawer \nit consists of a red and green key card\nyou take them')
-                            self.RKey = True
-                            self.Gkey = True
-                        else:
-                            print('you cannot do that now distract him again')
-                    elif self.Verb.lower() in ("no", "n"):
-                        print('you cannot defeat him, now he \nhas come back near the drawer \nyou will have to throw the stone again')
-                elif not self.Stones:
-                    print('you dont have the stones\ngo to the entrance to get the stones')
+                        if self.Verb.lower() in ('y', "yes"):
+                            print('The guard is now distracted\ngo to the drawer')
+                            x = input(">")
+                            self.Decode(x)
+                            if self.Verb.lower() in ("go", "drawer") and self.Obj.lower() in ("to", "drawer") and self.Obj2 in "drawer":
+                                print('you have reached the drawer \nit consists of a red and green key card\nyou take them')
+                                self.RKey = True
+                                self.Gkey = True
+                            else:
+                                print('you cannot do that now distract him again')
+                        elif self.Verb.lower() in ("no", "n"):
+                            print('you cannot defeat him, now he \nhas come back near the drawer \nyou will have to throw the stone again')
+                    elif not self.Stones:
+                        print('you dont have the stones\ngo to the entrance to get the stones')
             elif self.Verb.lower() in ("go", "g") and self.Obj.lower() in ("west" , "w"):
                 self.WoodenChestRoom()#NOTE make this a method
                 print("still in development")
             elif self.Verb.lower() in ("show", "map") and self.Obj.lower() in "map":
                 print(Map)
+            elif self.Verb.lower() in ("quit"):
+                self.Checkpointsave()
             else :
                 print('you cannot do that')
 
@@ -226,12 +240,12 @@ class Player:
             if self.Verb.lower() in ("take", "scroll") and self.Obj.lower() in "scroll":
                 print('you have the scroll, if you want to read it then put read scroll')
             elif self.Verb.lower() in ("read", "r") and self.Obj.lower() in "scroll":
-                print('the scroll says the following:\nAdventurer find the gryphon kill him and get the tools \nit posseses one of them can open the screwchest')
+                print('the scroll says the following:\nAdventurer find the gryphon kill him and get the tools \nit posseses one of them can open the screwchest\nYou keep the scroll back')
             elif self.Verb.lower() in ("open", "o") and self.Obj.lower() in "screwchest":
-                if not self.Screw:
-                    print('you open the chest\n it has a golden sword \nyou have now taken the golden sword')
-                elif self.Screw:
-                    print('first get the screwdriver, which the gryphon has')
+                if self.Screw:
+                    print('It has a golden sword \nyou have now taken the golden sword')
+                elif not self.Screw:
+                    print('First get the screwdriver, which the gryphon has')
             elif self.Verb.lower() in ("go", "east") and self.Obj.lower() in "east":
                 self.GuardRoom()#NOTE use this as a method
                 print("Still in development")
@@ -244,6 +258,8 @@ class Player:
                 self.Entrance()
             elif self.Verb.lower() in ("show", "map") and self.Obj.lower() in "map":
                 print(Map)
+            elif self.Verb.lower() in "quit":
+                self.Checkpointsave()
             else :
                 print('My Dumb code cannot understand what you mean to say so please reframe it')
 
@@ -254,13 +270,18 @@ class Player:
         while True :
             x = input(">")
             self.Decode(x)
-            if self.Verb.lower() in ("kill", "hit") and self.Obj.lower() in ("firester", "him"):
-                print('you defeated the fire monster, it leaves a key , take it to open the chest in entrance')
-                x = input(">")
-                self.Decode(x)
-                if self.Verb.lower() in ("take" , "t") and self.Obj.lower() in "key":
-                    print('key taken')
-                    self.Key = True
+            if not self.Firester:
+                if self.Verb.lower() in ("kill", "hit") and self.Obj.lower() in ("firester", "him"):
+                    print('you defeated the fire monster, it leaves a key , take it to open the chest in entrance')
+                    self.Firester = True
+                    x = input(">")
+                    self.Decode(x)
+                    if self.Verb.lower() in ("take" , "t") and self.Obj.lower() in "key":
+                        if self.Key == True :
+                            print("You already have the key")
+                        elif self.Key == False :
+                            print('key taken')
+                            self.Key = True
             elif self.Verb.lower() in ("go", "north") and self.Obj.lower() in ("north", "n"):
                 print('there is a wall here')
             elif self.Verb.lower() in ("go", "south") and self.Obj.lower() in ("south", "s"):
@@ -271,11 +292,15 @@ class Player:
                 self.Entrance()
             elif self.Verb.lower() in ("show", "map") and self.Obj.lower() in "map":
                 print(Map)
+            elif self.Verb.lower() in ("quit"):
+                self.Checkpointsave()
+            elif self.Firester:
+                print("He is already dead")
+                break
             else :
                 print('You cannot do that')
 
     def Entrance(self):
-        print(Title)
         print("\033[1m" + "If you want, Put map and the map will appear")
         print('\033[1m' + 'The Entrance:' + '\033[0m')
         print('you have entered the entrance of a mighty cave \nyou see a chest on the floor \nsome stones and an empty bookshelf\nthere are doors in the east and in the north')
@@ -283,19 +308,25 @@ class Player:
             x = input(">")
             self.Decode(x)
             if self.Verb.lower() in "take" and self.Obj.lower() in "stones":
-                print('stones taken')
+                if self.Stones == 5 :
+                    print('you already have the stones')
+                elif self.Stones == 0 :
+                    self.Stones = 5
+                    print("stones taken")
             elif self.Verb.lower() in "open" and self.Obj.lower() in "chest":
                 if not self.Key:
                     print('cannot open chest, fire monster has the key')
                 elif self.Key:
-                    print('chest opened, it consists of a iron knife , you take the knife')
+                    print('Chest consists of a iron knife , you take the knife')
             elif (self.Verb.lower() in "go" and self.Obj.lower() in ("north","n")) or (self.Verb.lower() in "north"):
                 self.WoodenChestRoom()
             elif (self.Verb.lower() in "go" and self.Obj.lower() in ("east","e")) or (self.Verb.lower() in "east"):
                 self.FireMonsterRoom()
             elif (self.Verb.lower() in "show" and self.Obj.lower() in "map"):
                 print(Map)
+            elif self.Verb.lower() in ("quit"):
+                self.Checkpointsave()
             else :
                 print('My Dumb Code Cannot Understand What You Wrote So LMAO')
 starts = Player(100, 0,  0, False, False, False, False)
-starts.Entrance()
+starts.CheckpointLoad()

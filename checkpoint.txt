@@ -1,0 +1,1 @@
+{'stones': 5, 'screw': False, 'smokes': 0, 'key': False, 'rkey': False, 'gkey': False, 'firester': False}
