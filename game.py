@@ -31,10 +31,7 @@ Map = """
 
 
 class Player:
-    def __init__(self, health: int = 100, Stones: int = 0, Smokes: int = 0, Place: str = "Entrance", 
-        Screw: bool = False, Key: bool = False,
-        RedKey: bool = False, GreenKey: bool = False, Firester: bool = False, Gryphon: bool = False,
-        WoodenSword: bool = False) -> None:
+    def __init__(self, health: int = 100, Stones: int = 0, Smokes: int = 0, Place: str = "Entrance", Screw: bool = False, Key: bool = False, RedKey: bool = False, GreenKey: bool = False, Firester: bool = False, Gryphon: bool = False, WoodenSword: bool = False, GoldenSword: bool = False) -> None:
         self.health = health
         self.Stones = Stones
         self.Smokes = Smokes
@@ -50,6 +47,7 @@ class Player:
         self.GryphonKill = Gryphon
         self.WoodenSword = WoodenSword
         self.Place = Place
+        self.GoldenSword = GoldenSword
     def Checkpointsave(self):
         checkpoint = open("checkpoint.json", "w")
         newfile = {
@@ -61,7 +59,8 @@ class Player:
             "gkey": False,
             "firester": False,
             "place" : "entrance",
-            "wsword" : False
+            "wsword" : False,
+            "gryphonkill" : False
         }
         try:
             newfile["stones"] = self.Stones
@@ -73,6 +72,7 @@ class Player:
             newfile["firester"] = self.Firester
             newfile["place"] = self.Place
             newfile["wsword"] = self.WoodenSword
+            newfile["gryphonkill"] = self.GryphonKill
         except KeyError:
             print("I tried man")
         checkpointjson = json.dumps(newfile)
@@ -119,7 +119,8 @@ class Player:
                     "rkey": False,
                     "gkey": False,
                     "firester": False,
-                    "wsword": False
+                    "wsword": False,
+                    "gryphonkill" : False
                 }
                 checkpoint1json = json.dumps(newfile)
                 checkpoint1.write(checkpoint1json)
@@ -136,6 +137,7 @@ class Player:
                 self.GKey = dictt["gkey"]
                 self.Firester = dictt["firester"]
                 self.WoodenSword = dictt["wsword"]
+                self.GryphonKill = dictt["gryphonkill"]
                 if dictt["place"] == "Entrance" :
                     self.Entrance()
                 elif dictt["place"] == "FireMonsterRoom" :
@@ -154,24 +156,38 @@ class Player:
                 print("Little Boy tried to hack :D")
 
         elif savefile == "2":
-            print("starting new game")
-            self.Entrance()
-
+            while True:
+                ask = input("Do you really wanna do that all your progress will be lost\n>")
+                if ask.lower() in ("yes","y"):
+                    self.Entrance()
+                elif ask.lower() in ("no","n"):
+                    print("ok then start the game again")
+                    input("")
+                    break
+                else:
+                    print("that isn't yes or no, so put it again")
+                    continue
     def Decode(self, x):
-        words = x.split(" ")
-        if 'to' in words:
-            words.remove('to')
-        elif 'towards' in words:
-            words.remove('towards')
-        elif len(words) >= 2:
-            self.Verb = words[0]
-            self.Obj = words[1]
-            if len(words) >= 3:
-                self.Obj2 = words[2]
-        elif len(words) == 1:
-            self.Verb = words[0]
-        else:
-            print("I cant really decode that, please write one to three words")
+        if not x:
+            print("you have to put something")
+            self.Verb = " "
+            self.Obj = " "
+            self.Obj2 = " "
+        elif x:
+            words = x.split(" ")
+            if 'to' in words:
+                words.remove('to')
+            elif 'towards' in words:
+                words.remove('towards')
+            elif len(words) >= 2:
+                self.Verb = words[0]
+                self.Obj = words[1]
+                if len(words) >= 3:
+                    self.Obj2 = words[2]
+            elif len(words) == 1:
+                self.Verb = words[0]
+            else:
+                print("I cant really decode that, please write one to three words")
 
     def damage(self, dmg: int = 5) -> None:
         self.health -= dmg
@@ -183,58 +199,76 @@ class Player:
             '\nfull of them but you don\'t have the knowledge to \nuse then you can only use the \nsmoke grenades '
             'there are five of them in front of you')
         self.Place = "GrenadeRoom"
-        x = input(">")
-        self.Decode(x)
-        if self.Verb.lower() in ("take", "t") and self.Obj in "smokes" or self.Obj in "grenades":
-            print('You have taken the smoke grenades, you can use them to skip fighting from monsters of you don\'t want to')
-            self.Smokes = 5
-        elif self.Verb.lower() in ("show", "map") and self.Obj.lower() in "map":
-            print(Map)
-        elif self.Verb.lower() in "quit":
-            self.Checkpointsave()
-        elif self.Verb.lower() in ("inventory", "show") and self.Obj.lower() in "inventory":
-            self.Inventory()
-        elif self.Verb.lower() in ("achievements", "show") and self.Obj.lower() in "achievements":
-            self.Achievements()
-        else:
-            print('I don\'t know what you typed but it\'s not take smokes, so anyway you take them\nnow you have five smokes you can use them to skip fights')
+        while True:
+            x = input(">")
+            self.Decode(x)
+            if self.Verb.lower() in ("take", "t") and self.Obj == "smokes" or self.Obj == "grenades":
+                print('You have taken the smoke grenades, you can use them to skip fighting from monsters of you don\'t want to')
+                self.Smokes = 5
+            elif self.Verb.lower() in ("show", "map") and self.Obj.lower() == "map":
+                print(Map)
+            elif self.Verb.lower() == "quit":
+                self.Checkpointsave()
+            elif self.Verb.lower() in ("inventory", "show") and self.Obj.lower() == "inventory":
+                self.Inventory()
+            elif self.Verb.lower() in ("achievements", "show") and self.Obj.lower() == "achievements":
+                self.Achievements()
+            elif self.Verb == " " and self.Obj == " " and self.Obj2 == " ":
+                continue
+            else:
+                self.UnidentifiedInput()
 
     def Gryphon(self) -> None:
         print('Gryphon Room')
         self.Place = "Gryphon"
         if self.Screw:
-            print('you have entered the gryphon room\nHere there is a gryphon\ndo you want to fight him?')
-            x = input(">")
-            self.Decode(x)
-            if self.Verb.lower() in ("no", "n"):
-                if not self.GryphonKill:
-                    print("Doesn't matter he is already dead, the cave smells of his ruins")
-                elif self.GryphonKill:
-                    print("you have chosen not to fight him, what a dumbass, dude you have to fight him aight")
-            elif self.Verb.lower() in ("yes", "y"):
-                if not self.GryphonKill:
-                    print("Doesn't matter he is already dead, the cave smells of his ruins")
-                elif self.GryphonKill:
-                    if self.WoodenSword:
-                        print("Okay you fought him and won")
-                        self.GryphonKill = False
-                    elif not self.WoodenSword:
-                        print("you don't have the sword so you lost and died")
-            elif self.Verb.lower() in ("show", "map") and self.Obj.lower() in "map":
-                print(Map)
-            elif self.Verb.lower() in "quit":
-                self.Checkpointsave()
-            elif self.Verb.lower() in ("inventory", "show") and self.Obj.lower() in "inventory":
-                self.Inventory()
-            elif self.Verb.lower() in ("achievements", "show") and self.Obj.lower() in "achievements":
-                self.Achievements()
-            else:
-                print("My dumb code couldn't really understand the thing you wrote, just write yes or no")
-        elif not self.Screw:
             print(
                 '' + 'The room has broken down now, the enchanted sword takes you to the gold room,you cannot access '
                      'this room')
             self.GoldRoom()  # !NOTE:imp: [TO Make as Method]
+        elif  not self.Screw:
+            print('you have entered the gryphon room\nHere there is a gryphon\ndo you want to fight him?')
+            while True:
+                x = input(">")
+                self.Decode(x)
+                if self.Verb.lower() in ("no", "n"):
+                    if self.GryphonKill:
+                        print("Doesn't matter he is already dead, the cave smells of his ruins")
+                    elif not self.GryphonKill:
+                        print("you have chosen not to fight him, what a dumbass, dude you have to fight him aight")
+                elif self.Verb.lower() in ("yes", "y"):
+                    if self.GryphonKill:
+                        print("Doesn't matter he is already dead, the cave smells of his ruins")
+                    elif not self.GryphonKill:
+                        if self.WoodenSword:
+                            print("Okay you fought him and won")
+                            print("Now you have the screw which opens the screwchest in wooden  chest room")
+                            self.Screw = True
+                            self.GryphonKill = True
+                        elif not self.WoodenSword:
+                            print("you don't have the golden sword so you lost and died")
+                elif self.Verb.lower() in ("show", "map") and self.Obj.lower() == "map":
+                    print(Map)
+                elif self.Verb.lower() == "quit" or self.Obj.lower() == "quit":
+                    self.Checkpointsave()
+                elif self.Verb.lower() in ("inventory", "show") and self.Obj.lower() == "inventory":
+                    self.Inventory()
+                elif self.Verb.lower() in ("achievements", "show") and self.Obj.lower() == "achievements":
+                    self.Achievements()
+                elif (self.Verb.lower() == "go" and self.Obj.lower() in ("west", "w")) or (self.Verb.lower() == "west"):
+                    self.GoldRoom()
+                elif (self.Verb.lower() == "go" and self.Obj.lower() in ("south", "s")) or (self.Verb.lower() == "south"):
+                    print("there is a wall here") 
+                elif self.Verb.lower() in ("go", "north") and self.Obj.lower() in ("north", "n"):
+                    print("there is a wall here")   
+                elif (self.Verb.lower() == "go" and self.Obj.lower() in ("east", "e")) or (self.Verb.lower() == "east"): 
+                    print("there is a wall here")
+                elif self.Verb == " " and self.Obj == " " and self.Obj2 == " ":
+                    continue
+                else:
+                    self.UnidentifiedInput()
+
+            
 
     def GoldRoom(self):
         print('GoldRoom')
@@ -245,19 +279,19 @@ class Player:
         while True:
             x = input(">")
             self.Decode(x)
-            if self.Verb.lower() in ("take", "t", "claim") and self.Obj.lower() in "sword":
+            if self.Verb.lower() in ("take", "t", "claim") and self.Obj.lower() == "sword":
                 if not self.WoodenSword:
                     print('You now have the sword')
                     self.WoodenSword = True
                 elif self.WoodenSword:
                     print("You already have the sword")
-            elif self.Verb.lower() in ("show", "map") and self.Obj.lower() in "map":
+            elif self.Verb.lower() in ("show", "map") and self.Obj.lower() == "map":
                     print(Map)
-            elif self.Verb.lower() in "quit":
+            elif self.Verb.lower() == "quit":
                 self.Checkpointsave()
-            elif self.Verb.lower() in ("inventory", "show") and self.Obj.lower() in "inventory":
+            elif self.Verb.lower() in ("inventory", "show") and self.Obj.lower() == "inventory":
                 self.Inventory()
-            elif self.Verb.lower() in ("achievements", "show") and self.Obj.lower() in "achievements":
+            elif self.Verb.lower() in ("achievements", "show") and self.Obj.lower() == "achievements":
                 self.Achievements()
             elif self.Verb.lower() in ("go", "g") and self.Obj.lower() in ("s", "south"):
                 if self.GKey == True:
@@ -275,10 +309,12 @@ class Player:
                     self.GrenadeRoom() 
                 elif self.GKey == False:
                     print('you don\'t have the green key card\nit is in the guardroom')
-            elif (self.Verb.lower() in "go" and self.Obj.lower() in ("west", "w")) or (self.Verb.lower() in "west"):
-                print("there is a wall here")     
+            elif (self.Verb.lower() == "go" and self.Obj.lower() in ("west", "w")) or (self.Verb.lower() == "west"):
+                print("there is a wall here")
+            elif self.Verb == " " and self.Obj == " " and self.Obj2 == " ":
+                continue
             else :
-                print("My Dumb code cannot understand what you mean to say so please reframe it")
+                self.UnidentifiedInput()
 
     def GuardRoom(self):
         print('Guard Room')
@@ -302,7 +338,7 @@ class Player:
                             print('The guard is now distracted\ngo to the drawer')
                             x = input(">")
                             self.Decode(x)
-                            if self.Verb.lower() in ("go", "drawer") and self.Obj.lower() in ("to", "drawer") and self.Obj2 in "drawer":
+                            if self.Verb.lower() in ("go", "drawer") and self.Obj.lower() in ("to", "drawer") and self.Obj2 == "drawer":
                                 print(
                                     'you have reached the drawer \nit consists of a red and green key card\nyou take '
                                     'them')
@@ -318,22 +354,24 @@ class Player:
                         print('you don\'t have the stones\ngo to the entrance to get the stones')
             elif self.Verb.lower() in ("go", "g") and self.Obj.lower() in ("west", "w"):
                 self.WoodenChestRoom()  # NOTE make this a method
-            elif (self.Verb.lower() in "go" and self.Obj.lower() in ("south", "s")) or (self.Verb.lower() in "south"):
+            elif (self.Verb.lower() == "go" and self.Obj.lower() in ("south", "s")) or (self.Verb.lower() == "south"):
                 print("there is a wall here")
-            elif (self.Verb.lower() in "go" and self.Obj.lower() in ("north", "n")) or (self.Verb.lower() in "north"):
+            elif (self.Verb.lower() == "go" and self.Obj.lower() in ("north", "n")) or (self.Verb.lower() == "north"):
                 print("there is a wall here")
-            elif (self.Verb.lower() in "go" and self.Obj.lower() in ("east", "e")) or (self.Verb.lower() in "east"):
+            elif (self.Verb.lower() == "go" and self.Obj.lower() in ("east", "e")) or (self.Verb.lower() == "east"):
                 print("there is a wall here")
-            elif self.Verb.lower() in ("show", "map") and self.Obj.lower() in "map":
+            elif self.Verb.lower() in ("show", "map") and self.Obj.lower() == "map":
                 print(Map)
-            elif self.Verb.lower() in "quit":
+            elif self.Verb.lower() == "quit":
                 self.Checkpointsave()
-            elif self.Verb.lower() in ("inventory", "show") and self.Obj.lower() in "inventory":
+            elif self.Verb.lower() in ("inventory", "show") and self.Obj.lower() == "inventory":
                 self.Inventory()
-            elif self.Verb.lower() in ("achievements", "show") and self.Obj.lower() in "achievements":
+            elif self.Verb.lower() in ("achievements", "show") and self.Obj.lower() == "achievements":
                 self.Achievements()
+            elif self.Verb == " " and self.Obj == " " and self.Obj2 == " ":
+                continue
             else:
-                print('My Dumb code cannot understand what you mean to say so please reframe it')
+                self.UnidentifiedInput()
 
     def WoodenChestRoom(self):
         print('Wooden Chest Room')
@@ -345,18 +383,19 @@ class Player:
         while True:
             x = input(">")
             self.Decode(x)
-            if self.Verb.lower() in ("take", "scroll") and self.Obj.lower() in "scroll":
+            if self.Verb.lower() in ("take", "scroll") and self.Obj.lower() == "scroll":
                 print('you have the scroll, if you want to read it then put read scroll')
-            elif self.Verb.lower() in ("read", "r") and self.Obj.lower() in "scroll":
+            elif self.Verb.lower() in ("read", "r") and self.Obj.lower() == "scroll":
                 print(
                     'the scroll says the following:\nAdventurer find the gryphon kill him and get the tools \nit '
                     'posseses one of them can open the screwchest\nYou keep the scroll back')
-            elif self.Verb.lower() in ("open", "o") and self.Obj.lower() in "screwchest":
+            elif self.Verb.lower() in ("open", "o") and self.Obj.lower() == "screwchest":
                 if self.Screw:
                     print('It has a golden sword \nyou have now taken the golden sword')
+                    self.GoldenSword = True
                 elif not self.Screw:
                     print('First get the screwdriver, which the gryphon has')
-            elif self.Verb.lower() in ("go", "east") and self.Obj.lower() in "east":
+            elif self.Verb.lower() in ("go", "east") and self.Obj.lower() == "east":
                 self.GuardRoom()  # NOTE use this as a method
             elif self.Verb.lower() in ("go", "north") and self.Obj.lower() in ("north", "n"):
                 if self.RKey:
@@ -365,18 +404,20 @@ class Player:
                     print('You need a red key card')
             elif self.Verb.lower() in ("go", "south") and self.Obj.lower() in ("south", "s"):
                 self.Entrance()
-            elif (self.Verb.lower() in "go" and self.Obj.lower() in ("west", "w")) or (self.Verb.lower() in "west"):
+            elif (self.Verb.lower() == "go" and self.Obj.lower() in ("west", "w")) or (self.Verb.lower() == "west"):
                 print("there is a wall here")
-            elif self.Verb.lower() in ("show", "map") and self.Obj.lower() in "map":
+            elif self.Verb.lower() in ("show", "map") and self.Obj.lower() == "map":
                 print(Map)
-            elif self.Verb.lower() in "quit":
+            elif self.Verb.lower() == "quit":
                 self.Checkpointsave()
-            elif self.Verb.lower() in ("inventory", "show") and self.Obj.lower() in "inventory":
+            elif self.Verb.lower() in ("inventory", "show") and self.Obj.lower() == "inventory":
                 self.Inventory()
-            elif self.Verb.lower() in ("achievements", "show") and self.Obj.lower() in "achievements":
+            elif self.Verb.lower() in ("achievements", "show") and self.Obj.lower() == "achievements":
                 self.Achievements()
+            elif self.Verb == " " and self.Obj == " " and self.Obj2 == " ":
+                continue
             else:
-                print('My Dumb code cannot understand what you mean to say so please reframe it')
+                self.UnidentifiedInput()
 
     def FireMonsterRoom(self):
         print('Fire Monster Room:')
@@ -409,18 +450,20 @@ class Player:
                 self.Entrance()
             elif self.Verb.lower() in ("show", "map") and self.Obj.lower() in "map":
                 print(Map)
-            elif self.Verb.lower() in "quit":
+            elif self.Verb.lower() == "quit":
                 self.Checkpointsave()
             elif self.Verb.lower() in ("inventory", "show") and self.Obj.lower() in "inventory":
                 self.Inventory()
             elif self.Verb.lower() in ("achievements", "show") and self.Obj.lower() in "achievements":
                 self.Achievements()
+            elif self.Verb == " " and self.Obj == " " and self.Obj2 == " ":
+                continue
             elif self.Firester:
                 print("He is already dead")
                 self.Firester = True
                 break
             else:
-                print('You cannot do that')
+                self.UnidentifiedInput()
 
     def Entrance(self):
         print("If you want, Put map and the map will appear")
@@ -443,45 +486,90 @@ class Player:
                     print('cannot open chest, fire monster has the key')
                 elif self.Key:
                     print('Chest consists of a iron knife , you take the knife')
-            elif (self.Verb.lower() in "go" and self.Obj.lower() in ("north", "n")) or (self.Verb.lower() in "north"):
+            elif (self.Verb.lower() == "go" and self.Obj.lower() in ("north", "n")) or (self.Verb.lower() in "north"):
                 self.WoodenChestRoom()
-            elif (self.Verb.lower() in "go" and self.Obj.lower() in ("east", "e")) or (self.Verb.lower() in "east"):
+            elif (self.Verb.lower() == "go" and self.Obj.lower() in ("east", "e")) or (self.Verb.lower() in "east"):
                 self.FireMonsterRoom()
-            elif (self.Verb.lower() in "go" and self.Obj.lower() in ("west", "w")) or (self.Verb.lower() in "west"):
+            elif (self.Verb.lower() == "go" and self.Obj.lower() in ("west", "w")) or (self.Verb.lower() in "west"):
                 print("there is a wall here")
-            elif (self.Verb.lower() in "go" and self.Obj.lower() in ("south", "s")) or (self.Verb.lower() in "south"):
+            elif (self.Verb.lower() == "go" and self.Obj.lower() in ("south", "s")) or (self.Verb.lower() in "south"):
                 print("there is a wall here")
-            elif self.Verb.lower() in "show" and self.Obj.lower() in "map":
+            elif self.Verb.lower() == "show" and self.Obj.lower() == "map":
                 print(Map)
-            elif self.Verb.lower() in "quit":
+            elif self.Verb.lower() == "quit":
                 self.Checkpointsave()
-            elif self.Verb.lower() in ("inventory", "show") and self.Obj.lower() in "inventory":
+            elif self.Verb.lower() in ("inventory", "show", "inv") and self.Obj.lower() == "inventory":
                 self.Inventory()
-            elif self.Verb.lower() in ("achievements", "show") and self.Obj.lower() in "achievements":
-                self.Achievements()        
+            elif self.Verb.lower() in ("achievements", "show", "ach") and self.Obj.lower() == "achievements":
+                self.Achievements()    
+            elif self.Verb == " " and self.Obj == " " and self.Obj2 == " ":
+                continue    
             else:
-                print('My Dumb Code Cannot Understand What You Wrote So LMAO')
+                self.UnidentifiedInput()
     def Inventory(self):
         if self.Stones == 5:
             print("5 stones")
-        elif self.Screw:
-            print("Screw,")
-        elif self.Smokes == 5:
+        if self.Screw:
+            print("Screw")
+        if self.Smokes == 5:
             print("5 smokes")
-        elif self.Key:
+        if self.Key:
             print("key")
-        elif self.RKey:
-            print("Red Ke,")
-        elif self.GKey:
+        if self.RKey:
+            print("Red Key")
+        if self.GKey:
             print("Green Key")
-        elif self.WoodenSword:
+        if self.WoodenSword:
             print("Wooden sword")
+    
     def Achievements(self):
         if self.GryphonKill:
             print("Its a lion!, it's an eagle!, it's Gryphon!:\nKill Gryphon")
-        elif self.Firester:
+        if self.Firester:
             print("Extinguished:\nKill Firester")
-
+        if self.GKey:
+            print("Who throw the stone?:\nDistract guard")
+    
+    def UnidentifiedInput(self):
+        if self.Verb.lower() == "nice" and self.Obj.lower() in ("man", "dude", "bitch", "dude","man", "girl", "boi", "bro", "one") or (self.Verb.lower() == "lmao"):
+            print("yeah very nice")
+            print("niceeeee" + self.Obj.lower())
+        elif self.Verb.lower() == "lmao":
+            print("lmao nice")
+        elif self.Verb.lower() == "yea" and self.Obj.lower() == "boi":
+            print("yea boii")
+        elif self.Verb.lower() in ("ok","hmm","k","ya","yes","oof","ew","no","yeah","aight","alright","hmmm","hmmm","never"):
+            print("whatev idc")
+        elif self.Verb.lower() in ("idc","idk"):
+            print("you should")
+        elif self.Verb.lower() in ("what", "wut", "what?", "wht?", "?"):
+            print("idk dude figure it out,(dude is unisex)")
+        elif self.Verb.lower() in ("fuck","hate","you","suck","are","dumb","donkey","bitch","motherfucker","whore","dick","cunt","pussy", "dumbass") and self.Obj.lower() in ("you","fuck","suck","are","dumb","donkey","bitch","motherfucker","whore","dick","cunt","pussy", "dumbass"):
+            print("stop being offensive")
+            i = 100
+            while i >= 1:
+                print("game crash motherfucker")
+                i -= 1
+                print("haahahahaahahaha")
+        elif self.Verb.lower() in ("go", "g") and self.Obj.lower() not in ('east','west','north', 'south'):
+            print("damn check your spellings")
+        elif self.Verb.lower() == "pewdiepie":
+            print("how's it goin bros my name is PewDiePie")
+        elif self.Verb.lower() == "pls":
+            print("i am not dank enough")
+        elif self.Verb.lower() == "lmao" and self.Verb.lower() == "ded":
+            print("(outro music plays)")
+        elif self.Verb.lower() == ("wassup","whadup","sup","yo","hey", "hi", "hello", "yea"):
+            if self.Obj.lower() == ("bitch", "dude","man", "girl", "boi", "bro"):
+                print("yo")
+        elif self.Verb == " " and self.Obj == " " and self.Obj2 == " ":
+            print("ok")
+        else:
+            print(self.Verb + "?")
+            if self.Place == "GrenadeRoom":
+                print("put take smokes")
+            elif self.Place == "Gryphon":
+                print("do ou wanna fight him or not??")
 if __name__ == "__main__": 
   starts = Player(100, 0, 0, False, False, False, False)
   starts.CheckpointLoad()
