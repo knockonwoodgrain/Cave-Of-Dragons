@@ -10,4 +10,4 @@ Feel free to contribute!
 **19th October 2020** Using Json, Checkpoints have been made more usable, removed bugs, optimisations<br/>
 **22nd October 2020** Optimisations and a lot of bug fixes, added commands such as show achievements and inventory, now you spawn where you left<br/>
 **23rd October 2020** I did something doesnt matter the game works now.<br/>
-**24th October 2020** Added fun foghting modules, also now you don't get stuck in the grenade room<br/>
+**24th October 2020** Added fun fighting modules, also now you don't get stuck in the grenade room, bug fixes<br/>
