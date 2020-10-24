@@ -31,7 +31,20 @@ Map = """
 
 
 class Player:
-    def __init__(self, health: int = 100, Stones: int = 0, Smokes: int = 0, Place: str = "Entrance", Screw: bool = False, Key: bool = False, RedKey: bool = False, GreenKey: bool = False, Firester: bool = False, Gryphon: bool = False, WoodenSword: bool = False, GoldenSword: bool = False) -> None:
+    def __init__(
+     self,
+     health: int = 100,
+     Stones: int = 0,
+     Smokes: int = 0,
+     Place: str = "Entrance",
+     Screw: bool = False,
+     Key: bool = False,
+     RedKey: bool = False,
+     GreenKey: bool = False,
+     Firester: bool = False,
+     Gryphon: bool = False,
+     WoodenSword: bool = False,
+     GoldenSword: bool = False) -> None:
         self.health = health
         self.Stones = Stones
         self.Smokes = Smokes
@@ -48,6 +61,7 @@ class Player:
         self.WoodenSword = WoodenSword
         self.Place = Place
         self.GoldenSword = GoldenSword
+
     def Checkpointsave(self):
         checkpoint = open("checkpoint.json", "w")
         newfile = {
@@ -98,7 +112,6 @@ class Player:
                 self.GoldRoom()
             elif self.Place == "GrenadeRoom" :
                 self.GrenadeRoom()
-        
 
     def CheckpointLoad(self):
         savefile = input(
@@ -167,6 +180,7 @@ class Player:
                 else:
                     print("that isn't yes or no, so put it again")
                     continue
+
     def Decode(self, x):
         if not x:
             print("you have to put something")
@@ -223,7 +237,7 @@ class Player:
         self.Place = "Gryphon"
         if self.Screw:
             print(
-                '' + 'The room has broken down now, the enchanted sword takes you to the gold room,you cannot access '
+                '' + 'The room has broken down now, the enchanted sword takes you to the gold room, you cannot access '
                      'this room')
             self.GoldRoom()  # !NOTE:imp: [TO Make as Method]
         elif  not self.Screw:
@@ -267,8 +281,6 @@ class Player:
                     continue
                 else:
                     self.UnidentifiedInput()
-
-            
 
     def GoldRoom(self):
         print('GoldRoom')
@@ -570,6 +582,7 @@ class Player:
                 print("put take smokes")
             elif self.Place == "Gryphon":
                 print("do ou wanna fight him or not??")
+
 if __name__ == "__main__": 
-  starts = Player(100, 0, 0, False, False, False, False)
+  starts = Player()
   starts.CheckpointLoad()
