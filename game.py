@@ -255,7 +255,7 @@ class Player:
                         print("Doesn't matter he is already dead, the cave smells of his ruins")
                     elif not self.GryphonKill:
                         if self.WoodenSword:
-                            print("Okay you fought him and won")
+                            self.Fight()
                             print("Now you have the screw which opens the screwchest in wooden  chest room")
                             self.Screw = True
                             self.GryphonKill = True
@@ -582,7 +582,128 @@ class Player:
                 print("put take smokes")
             elif self.Place == "Gryphon":
                 print("do ou wanna fight him or not??")
-
+              
+    def Fight(self):
+        print("this is rock, paper, scissors, lizard, spock\nthis will decide if you win or lose")
+        print("Scissors cuts Paper \nPaper covers Rock \nRock crushes Lizard \nLizard poisons Spock \nSpock smashes Scissors \nScissors decapitates Lizard \nLizard eats Paper \nPaper disproves Spock \nSpock vaporizes Rock\n(and as it always has) \nRock crushes Scissors")
+        print("if you lose five times you lose the game man\nRock------r\nPaper-----p\nScissors--sc\nLizard----l\nSpock-----sp")
+        i = 0
+        t = 0
+        while i <= 5 or t <= 5:
+            answer = random.randint(1,5)
+            inputs = input(">")
+            if inputs.lower() == "r":
+                self.Loading("fight")
+                if answer == 1:
+                    print("that's a tie")
+                elif answer == 2:
+                    print("paper, you lose")
+                    t += 1
+                elif answer == 3:
+                    print("scissors, you win")
+                    i += 1
+                elif answer == 4:
+                    print("lizard, you win")
+                    i += 1
+                elif answer == 5:
+                    print("spock, you lose")
+                    t += 1
+            elif inputs.lower() == "p":
+                self.Loading("fight")
+                if answer == 1:
+                    print("rock, you win")
+                    i += 1
+                elif answer == 2:
+                    print("paper, you tie")
+                elif answer == 3:
+                    print("scissors, you lose")
+                    t += 1
+                elif answer == 4:
+                    print("lizard, you lose")
+                    t += 1
+                elif answer == 5:
+                    print("spock, you win")
+                    i += 1
+            elif inputs.lower() == "sc":
+                self.Loading("fight")
+                if answer == 1:
+                    print("rock, you lose")
+                    t += 1
+                elif answer == 2:
+                    print("paper, you win")
+                    i += 1
+                elif answer == 3:
+                    print("scissors, you tie")
+                elif answer == 4:
+                    print("lizard, you win")
+                    i += 1
+                elif answer == 5:
+                    print("spock, you lose")
+                    t += 1
+            elif inputs.lower() == "l":
+                self.Loading("fight")
+                if answer == 1:
+                    print("rock, you lose")
+                    t += 1
+                elif answer == 2:
+                    print("paper, you win")
+                    i += 1
+                elif answer == 3:
+                    print("scissors, you lose")
+                    t += 1
+                elif answer == 4:
+                    print("lizard, you tie")
+                elif answer == 5:
+                    print("spock, you win")
+                    i += 1
+            elif inputs.lower() == "sp":
+                self.Loading("fight")
+                if answer == 1:
+                    print("rock, you win")
+                    i += 1
+                elif answer == 2:
+                    print("paper, you lose")
+                    t += 1
+                elif answer == 3:
+                    print("scissors, you win")
+                    i += 1
+                elif answer == 4:
+                    print("lizard, you lose")
+                    t += 1
+                elif answer == 5:
+                    print("spock, it's only logical")
+            elif inputs.lower() == "score":
+                print("your score:" + str(i))
+                print("opponents score:" + str(t))
+            elif inputs.lower() in ("yes","y"):
+                print("okay fight again")
+                i == 0
+                t == 0
+            else :
+                print("put r,p,sc,l or sp not anything else")
+            if i >= 5:
+                print("you win")
+                break
+            elif t >= 5:
+                print("you lose, 10 health reduced, fight again?")
+                self.damage(10)
+                break
+        if self.health == 0:
+            print("lmao ded")
+    
+    def Loading(self, var):
+        if var == "fight":
+            i = 0
+            while i != 5:
+                time.sleep(0.06)
+                sys.stdout.write("\r\\")
+                time.sleep(0.06)
+                sys.stdout.write("\r|")
+                time.sleep(0.06)
+                sys.stdout.write("\r/")
+                time.sleep(0.06)
+                sys.stdout.write("\r-")
+                i += 1
 if __name__ == "__main__": 
   starts = Player()
   starts.CheckpointLoad()
