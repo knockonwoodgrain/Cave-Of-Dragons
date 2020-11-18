@@ -1,1 +1,31 @@
-{"stones": 5, "screw": true, "smokes": 5, "key": true, "rkey": true, "gkey": true, "firester": true, "place": "GrenadeRoom", "wsword": true, "gryphonkill": true, "goldensword": true}
+{
+    "actone": {
+        "stones": 0,
+        "screw": false,
+        "smokes": 0,
+        "key": false,
+        "rkey": false,
+        "gkey": false,
+        "firester": false,
+        "wsword": false,
+        "gryphonkill": false,
+        "goldensword": false
+    },
+    "acttwo": {
+        "start": false,
+        "goblin": "neutral"
+    },
+    "money": {
+        "goldcoins": 0
+    },
+    "place": "Entrance",
+    "selfcharacter": {
+        "name": "steve",
+        "height": 5.9,
+        "hunger": 10,
+        "gender": "neutral",
+        "quirk": "neutral",
+        "age": 0,
+        "expertise": "neutral"
+    }
+}

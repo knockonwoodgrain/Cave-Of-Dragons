@@ -3,28 +3,26 @@ from os import error
 import random
 import time
 import sys
-print("""
- _______  _______           _______    _______  _______    ______   _______  _______  _______  _______  _        _______ 
+print(""" _______  _______           _______    _______  _______    ______   _______  _______  _______  _______  _        _______ 
 (  ____ \\(  ___  )|\\     /|(  ____ \\  (  ___  )(  ____ \\  (  __  \\ (  ____ )(  ___  )(  ____ \\(  ___  )( (    /|(  ____ \\
 | (    \\/| (   ) || )   ( || (    \\/  | (   ) || (    \\/  | (  \\  )| (    )|| (   ) || (    \\/| (   ) ||  \\  ( || (    \\/
 | |      | (___) || |   | || (__      | |   | || (__      | |   ) || (____)|| (___) || |      | |   | ||   \\ | || (_____ 
 | |      |  ___  |( (   ) )|  __)     | |   | ||  __)     | |   | ||     __)|  ___  || | ____ | |   | || (\\ \\) |(_____  )
 | |      | (   ) | \\ \\_/ / | (        | |   | || (        | |   ) || (\\ (   | (   ) || | \\_  )| |   | || | \\   |      ) |
 | (____/\\| )   ( |  \\   /  | (____/\\  | (___) || )        | (__/  )| ) \\ \\__| )   ( || (___) || (___) || )  \\  |/\\____) |
-(_______/|/     \\|   \\_/   (_______/  (_______)|/         (______/ |/   \\__/|/     \\|(_______)(_______)|/    )_)\\_______)                                                                                                                             
-""")
+(_______/|/     \\|   \\_/   (_______/  (_______)|/         (______/ |/   \\__/|/     \\|(_______)(_______)|/    )_)\\_______)""")
 
 Map = """
-    +---------+
-    |Grenade  |
-    |Room     |
-    +---------+  
-        | |
-    +---------+       +-------------------+
-    |Gold Room|=======|           Room    |
-    +---------+       |           Of      |
-        | |           +---------+ Gryphon |
-    +---------+                 |         |
+    +---------+                                       __ 
+    |Grenade  |======================================== \\
+    |Room     |                                       | |
+    +---------+                                       | |
+        | |                                           | |
+    +---------+       +-------------------+   +-------------------+
+    |Gold Room|=======|           Room    |   |___________?       |
+    +---------+       |           Of      |   |                   |
+        | |           +---------+ Gryphon |   |                   |
+    +---------+                 |         |   +-------------------+
     |Wooden   |   +--------+    |         |
     |Chest    |===|Guard   |====|         |
     | Room    |   |Room    |    |         |
@@ -36,10 +34,18 @@ Map = """
 """
 
 
+
 class Player:
     def __init__(
     self,
     health: int = 100,
+    hunger: int = 10,
+    height: int = 5.9,
+    gender: str = "neutral",
+    quirk: str = "neutral",
+    age: int = 0,
+    goldcoins: int = 0,
+    expertise: str = "neutral",
     Stones: int = 0,
     Smokes: int = 0,
     Place: str = "Entrance",
@@ -50,7 +56,40 @@ class Player:
     Firester: bool = False,
     Gryphon: bool = False,
     WoodenSword: bool = False,
-    GoldenSword: bool = False) -> None:
+    GoldenSword: bool = False,
+    Start:bool = False,
+    Goblin: str = "neutral",
+    newfile: dict = {
+            "actone" :{
+                "stones": 0,
+                "screw": False,
+                "smokes": 0,
+                "key": False,
+                "rkey": False,
+                "gkey": False,
+                "firester": False,
+                "wsword" : False,
+                "gryphonkill" : False,
+                "goldensword": False
+                },
+            "acttwo":{
+                "start" : False,
+                "goblin": "neutral"
+            },
+            "money": {
+                "goldcoins": 0
+            },
+            "place" : "Entrance",
+            "selfcharacter":{
+                "name": "steve",
+                "height": 5.9,
+                "hunger": 10,
+                "gender": "neutral",
+                "quirk" : "neutral",
+                "age" : 0,
+                "expertise": "neutral"
+            }
+        }) -> None:
         self.health = health
         self.Stones = Stones
         self.Smokes = Smokes
@@ -69,36 +108,44 @@ class Player:
         self.WoodenSword = WoodenSword
         self.Place = Place
         self.GoldenSword = GoldenSword
+        self.Start = Start
+        self.Goblin = Goblin
+        self.newfile = newfile
+        self.hunger = hunger
+        self.height = height
+        self.gender = gender
+        self.quirk = quirk
+        self.expertise = expertise
+        self.age = age
+        self.goldcoins = goldcoins
+    
     def Checkpointsave(self):
         checkpoint = open("checkpoint.json", "w")
-        newfile = {
-            "stones": 0,
-            "screw": False,
-            "smokes": 0,
-            "key": False,
-            "rkey": False,
-            "gkey": False,
-            "firester": False,
-            "place" : "Entrance",
-            "wsword" : False,
-            "gryphonkill" : False,
-            "goldensword": False
-        }
         try:
-            newfile["stones"] = self.Stones
-            newfile["screw"] = self.Screw
-            newfile["smokes"] = self.Smokes
-            newfile["key"] = self.Key
-            newfile["rkey"] = self.RKey
-            newfile["gkey"] = self.GKey
-            newfile["firester"] = self.Firester
-            newfile["place"] = self.Place
-            newfile["wsword"] = self.WoodenSword
-            newfile["gryphonkill"] = self.GryphonKill
-            newfile["goldensword"] = self.GoldenSword
+            self.newfile["actone"]["stones"] = self.Stones
+            self.newfile["actone"]["screw"] = self.Screw
+            self.newfile["actone"]["smokes"] = self.Smokes
+            self.newfile["actone"]["key"] = self.Key
+            self.newfile["actone"]["rkey"] = self.RKey
+            self.newfile["actone"]["gkey"] = self.GKey
+            self.newfile["actone"]["firester"] = self.Firester
+            self.newfile["place"] = self.Place
+            self.newfile["actone"]["wsword"] = self.WoodenSword
+            self.newfile["actone"]["gryphonkill"] = self.GryphonKill
+            self.newfile["actone"]["goldensword"] = self.GoldenSword
+            self.newfile["acttwo"]["start"] = self.Start
+            self.newfile["acttwo"]["goblin"] = self.Goblin
+            self.newfile["selfcharacter"]["hunger"] = self.hunger
+            self.newfile["selfcharacter"]["height"] = self.height
+            self.newfile["selfcharacter"]["gender"] = self.gender
+            self.newfile["selfcharacter"]["quirk"] = self.quirk
+            self.newfile["selfcharacter"]["expertise"] = self.expertise
+            self.newfile["selfcharacter"]["age"] = self.age
+            self.newfile["money"]["goldcoins"] = self.goldcoins
         except KeyError:
-            print("I tried man")
-        checkpointjson = json.dumps(newfile)
+            print("I guess there is something wrong with my code")
+            input()
+        checkpointjson = json.dumps(self.newfile, indent = 4)
         checkpoint.write(checkpointjson)
         checkpoint.close()
         ask = input("Do you want to quit?\n>")
@@ -121,13 +168,13 @@ class Player:
                 self.GoldRoom()
             elif self.Place == "GrenadeRoom" :
                 self.GrenadeRoom()
+            elif self.Place == "Marketplace":
+                self.Marketplace()
         
 
     def CheckpointLoad(self):
         while True:
-            savefile = input(
-                "Do you want to load latest save file or start from new?\n1)Load save file-------1\n2)Start new "
-                "game-------2\n>")
+            savefile = input("Do you want to load latest save file or start from new?\n1)Load save file-------1\n2)Start new game-------2\n>")
             if savefile == "1":
                 print("loading save file")
                 try:
@@ -135,36 +182,32 @@ class Player:
                 except FileNotFoundError:
                     print("Save file not found, making new file, please don't edit it")
                     checkpoint1 = open("checkpoint.json", "w")
-                    newfile = {
-                        "stones": 0,
-                        "screw": False,
-                        "smokes": 0,
-                        "key": False,
-                        "rkey": False,
-                        "gkey": False,
-                        "firester": False,
-                        "wsword": False,
-                        "gryphonkill" : False,
-                        "goldensword" : False,
-                        "place" : "Entrance"
-                    }
-                    checkpoint1json = json.dumps(newfile)
+                    checkpoint1json = json.dumps(self.newfile, indent = 4)
                     checkpoint1.write(checkpoint1json)
                     checkpoint1.close()
                     checkpoint = open("checkpoint.json", "r")
                 data = checkpoint.read()
                 dictt = json.loads(data)
                 try:
-                    self.Stones = dictt["stones"]
-                    self.Screw = dictt["screw"]
-                    self.Smokes = dictt["smokes"]
-                    self.Key = dictt["key"]
-                    self.RKey = dictt["rkey"]
-                    self.GKey = dictt["gkey"]
-                    self.Firester = dictt["firester"]
-                    self.WoodenSword = dictt["wsword"]
-                    self.GryphonKill = dictt["gryphonkill"]
-                    self.GoldenSword = dictt["goldensword"]
+                    self.Stones = dictt["actone"]["stones"]
+                    self.Screw = dictt["actone"]["screw"]
+                    self.Smokes = dictt["actone"]["smokes"]
+                    self.Key = dictt["actone"]["key"]
+                    self.RKey = dictt["actone"]["rkey"]
+                    self.GKey = dictt["actone"]["gkey"]
+                    self.Firester = dictt["actone"]["firester"]
+                    self.WoodenSword = dictt["actone"]["wsword"]
+                    self.GryphonKill = dictt["actone"]["gryphonkill"]
+                    self.GoldenSword = dictt["actone"]["goldensword"]
+                    self.Start = dictt["acttwo"]["start"]
+                    self.Goblin = dictt["acttwo"]["goblin"]
+                    self.hunger = dictt["selfcharacter"]["hunger"]
+                    self.height = dictt["selfcharacter"]["height"] 
+                    self.gender = dictt["selfcharacter"]["gender"]
+                    self.quirk = dictt["selfcharacter"]["quirk"]
+                    self.expertise = dictt["selfcharacter"]["expertise"]
+                    self.age = dictt["selfcharacter"]["age"]
+                    self.goldcoins = dictt["money"]["goldcoins"]
                     if dictt["place"] == "Entrance" :
                         self.Entrance()
                     elif dictt["place"] == "FireMonsterRoom" :
@@ -179,14 +222,20 @@ class Player:
                         self.GoldRoom()
                     elif dictt["place"] == "GrenadeRoom" :
                         self.GrenadeRoom()
+                    elif dictt["place"] == "Marketplace":
+                        self.Marketplace()
                 except KeyError:
-                    print("Little Boy tried to hack :D")
+                    print("looks like the save file is corrupt\nfixing file")
+                    self.RemoveProgress()
+                    self.Loading("actone")
+                    self.CheckpointLoad()
                 break
 
             elif savefile == "2":
                 while True:
                     ask = input("Do you really wanna do that all your progress will be lost\n>")
                     if ask.lower() in ("yes","y"):
+                        self.RemoveProgress()
                         self.Entrance()
                     elif ask.lower() in ("no","n"):
                         print("ok then start the game again")
@@ -199,7 +248,13 @@ class Player:
             else:
                 print("put 1 or 2 you nincompoop")
                 continue
-
+    
+    def RemoveProgress(self):
+        checkpoint1 = open("checkpoint.json", "w")
+        checkpoint1json = json.dumps(self.newfile, indent = 4)
+        checkpoint1.write(checkpoint1json)
+        checkpoint1.close()     
+                
     def Decode(self, x):
         if not x:
             print("you have to put something")
@@ -226,6 +281,128 @@ class Player:
 
     def damage(self, dmg: int = 5) -> None:
         self.health -= dmg
+    
+    def eat(self, hun: int = 1) -> None:
+        self.hunger += hun
+    
+    def losehun(self, hun: int = 1) -> None:
+        self.hunger -= hun
+
+    def addgold(self, mon: int = 5) -> None:
+        self.goldcoins += mon
+
+    def removegold(self, mon: int = 5) -> None:
+        self.goldcoins -= mon
+
+    def Marketplace(self):
+        if self.Start == False:
+            print(" _____          _          __    ___  _____ _____      __  \n"
+                    "|  ___|        | |        / _|  / _ \\/  __ \\_   _|    /  |\n" 
+                    "| |__ _ __   __| |   ___ | |_  / /_\\ \\ /  \\/ | |______`| |\n" 
+                    "|  __| '_ \\ / _` |  / _ \\|  _| |  _  | |     | |______|| |\n" 
+                    "| |__| | | | (_| | | (_) | |   | | | | \\__/\\ | |      _| |_\n"
+                    "\\____/_| |_|\\__,_|  \\___/|_|   \\_| |_/\\____/ \\_/      \\___/")        
+            print("you keep going through a small tunnel, \nyou don't know where it leads,")
+            input()
+            print("\ryou have no knowledge of your previous life, \nyou just remember waking up in the entrance of the cave,")
+            input()
+            print("\rthe tunnels smell of methane, after travelling for 8 hours\nyou start hearing voices you keep going faster")
+            input()
+            print("\ryou reach the marketplace,\nan underground subway turned into a place to trade,\na humanlike creature approaches you")
+            input("press enter to continue")
+            self.Loading("actone")
+            print("it is a goblin, goblins love gold, \nthey are very greedy and cunning,\nhe says,'ooh, a human; what have you got?'\nthen he starts checking what you have")
+            while True:
+                x = input("what do you do?\n>")
+                self.Decode(x)
+                if self.Verb.lower() in ("resist", "stop") and self.Obj.lower() in ("goblin", "him") or (self.Verb.lower() in ("resist", "stop")):
+                    print("you resisted him and he stopped checking")
+                elif self.Verb.lower() in ("challenge", "hit", "duel") and self.Obj.lower() in ("goblin", "him") or (self.Verb.lower() in ("challenge", "him")):
+                    print("you chellenge him to a duel")
+                elif self.Verb.lower() in ("throw", "toss"):
+                    x = input("what?\n>")
+                    self.Decode(x)
+                    if self.Verb.lower() in ("stones", "stone", "a") or (self.Verb.lower() in ("stones", "stone", "a", "some") and self.Obj.lower() in ("stones", "stone", "a")):
+                        print("you threw stones at him\nhe gave you a dirty look and said, 'you will regret this'\nthen he went away")
+                        self.Goblin = "worse"
+                    elif self.Verb.lower() in ("smokes", "grenades", "a", "smoke") or (self.Verb.lower() in ("smokes", "smoke", "a") and self.Obj.lower() in ("smokes", "smoke", "a", "grenade")):
+                        print("you throw a smoke at him and run away into the crowd")
+                        self.Goblin = "bad"
+                elif self.Verb.lower() in ("throw", "toss"):
+                    if self.Obj.lower() in ("stones", "stone", "a") or (self.Obj.lower() in ("stones", "stone", "a", "some") and self.Obj2.lower() in ("stones", "stone", "a")):
+                        print("you threw stones at him\nhe gave you a dirty look and said, 'you will regret this'\nthen he went away")
+                        self.Goblin = "worse"
+                    elif self.Obj.lower() in ("smokes", "grenades", "a", "smoke") or (self.Obj.lower() in ("smokes", "smoke", "a") and self.Obj2.lower() in ("smokes", "smoke", "a", "grenade")):
+                        print("you throw a smoke at him and run away into the crowd")
+                        self.Goblin = "bad"
+                elif self.Verb.lower() == "" or (self.Verb.lower() == "let" and self.Obj.lower() in ("him", "it", "the") and self.Obj2.lower("check") ):
+                    print("you let him check and he says\n,'ooh you have a lot of valuable stuff hehe,\ngive me the wooden sword and i'll give you 25 gold coins'")
+                    while True:
+                        x = input("do you wanna trade the sword?\n>")
+                        self.Decode(x)
+                        if self.Verb.lower() in ("yes","y"):
+                            self.addgold(25)
+                            self.WoodenSword = False
+                            print("you traded your wooden sword 25 gold")
+                            print("you realise that you are very hungry\nyou can get food for the price\ngo on deeper, explore(put explore)")
+                            break
+                        elif self.Verb.lower() in ("no", "n"):
+                            print("you have no money, you might get hungry \nlater on are you sure you want this?")
+                            break
+                        else:
+                            print("invalid input put yes or no")
+                            continue
+                elif self.Verb.lower() == "explore":
+                    self.Start = True
+                    print("you walk away from the goblin and start to explore the place")
+                    print("here you meet a man like you he looks at you and asks your name,\n'I am the great knight sent to destroy the evil creatures of the cave', \nhe closely looks at your armor and says,'you are from the kingdom what are you doing here?'\nyou say that you have forgot who you are\nand want to go to the kingdom to find your true identity")
+                    time.sleep(5)
+                    print("the man takes you with him to a food stall after you tell him that you are hungry\nyou people eat food, you ask questions to him(write name,weight,job status, relation etc to know more about him)")
+                    x = input(">")
+                    self.Decode(x)
+                    if self.Verb.lower() == "name":
+                        print("his name is Jim Smith")
+                    elif self.Verb.lower() == "height":
+                        print("his hright is 6 feet 9 inches nice")
+                    elif self.Verb.lower() == "weight":
+                        print("his weight is 69 kg nice")
+                    elif self.Verb.lower() == "status":
+                        print("he is a good looking fair knight, he is calm and composed")
+                        print("you have introduced yourself to the marketplace, now that is done, you leave the knight you can go to him if you want")
+                        self.Start = True
+
+                elif (self.Verb.lower() == "go" and self.Obj.lower() in ("south", "s")) or (self.Verb.lower() == "south"):
+                    print("Still in development")
+                elif (self.Verb.lower() == "go" and self.Obj.lower() in ("east", "e")) or (self.Verb.lower() == "east"):
+                    print("do you really wanna go there, its a long way back, you will get hungry and lose a bit of health")
+                    while True:
+                        x = input(">")
+                        self.Decode(x)
+                        if self.Verb.lower() in ("yes","y"):
+                            print("really nigga?")
+                            self.GrenadeRoom()
+                            break
+                        elif self.Verb.lower() in ("no", "n"):
+                            print("you have no money")
+                            break
+                        else:
+                            print("invalid input pur yes or no")
+                            continue
+                
+                else:
+                    self.UnidentifiedInput()
+            
+                
+
+    def countdown(self,t): 
+        while t: 
+            mins, secs = divmod(t, 60)
+            timer = '{:02d}:{:02d}'.format(mins, secs)
+            print(timer, end="\r")
+            time.sleep(1)
+            t -= 1
+        
+        print('Fire in the hole!!') 
 
     def GrenadeRoom(self) -> None:
         print('Grenade Room')
@@ -237,7 +414,7 @@ class Player:
         while True:
             x = input(">")
             self.Decode(x)
-            if self.Verb.lower() in ("take", "t") and self.Obj == "smokes" or self.Obj == "grenades":
+            if self.Verb.lower() in ("take", "t") and self.Obj.lower() == "smokes" or self.Obj.lower() == "grenades":
                 print('You have taken the smoke grenades, you can use them to skip fighting from monsters of you don\'t want to')
                 self.Smokes = 5
             elif self.Verb.lower() in ("show", "map") or (self.Verb.lower() in ("show", "map") and self.Obj.lower() == "map"):
@@ -250,6 +427,8 @@ class Player:
                 self.Achievements()
             elif (self.Verb.lower() == "go" and self.Obj.lower() in ("south", "s")) or (self.Verb.lower() == "south"):
                 self.GoldRoom()
+            elif (self.Verb.lower() == "go" and self.Obj.lower() in ("east", "e")) or (self.Verb.lower() == "east"):
+                self.Marketplace()
             elif self.Verb == " " and self.Obj == " " and self.Obj2 == " ":
                 continue
             else:
@@ -295,6 +474,9 @@ class Player:
                             self.GryphonKill = True
                         elif not self.WoodenSword:
                             print("you don't have the golden sword so you lost and died")
+                elif self.Verb.lower() == "use" and self.Obj.lower() in ("smokes, grenades"):
+                    print("okay you skipped fighting him and go the screw, but remember that he might cause a problem later on")
+                    self.Screw = True 
                 elif self.Verb.lower() in ("show", "map") and self.Obj.lower() == "map":
                     print(Map)
                 elif self.Verb.lower() == "quit" or self.Obj.lower() == "quit":
@@ -315,8 +497,6 @@ class Player:
                     continue
                 else:
                     self.UnidentifiedInput()
-
-            
 
     def GoldRoom(self):
         print('GoldRoom')
@@ -553,6 +733,7 @@ class Player:
                 continue    
             else:
                 self.UnidentifiedInput()
+
     def Inventory(self):
         if self.Stones == 5:
             print("5 stones")
@@ -578,7 +759,7 @@ class Player:
             print("Who throw the stone?:\nDistract guard")
     
     def UnidentifiedInput(self):
-        if self.Verb.lower() == "nice" and self.Obj.lower() in ("man", "dude", "bitch", "dude","man", "girl", "boi", "bro", "one") or (self.Verb.lower() == "lmao"):
+        if self.Verb.lower() == "nice" and self.Obj.lower() in ("man", "dude", "bitch", "dude","man", "girl", "boi", "bro", "one") or (self.Verb.lower() == "nice"):
             print("yeah very nice")
             print("niceeeee" + self.Obj.lower())
         elif self.Verb.lower() == "lmao":
@@ -591,7 +772,7 @@ class Player:
             print("you should")
         elif self.Verb.lower() in ("what", "wut", "what?", "wht?", "?"):
             print("idk dude figure it out,(dude is unisex)")
-        elif self.Verb.lower() in ("fuck","hate","you","suck","are","dumb","donkey","bitch","motherfucker","whore","dick","cunt","pussy", "dumbass") and self.Obj.lower() in ("you","fuck","suck","are","dumb","donkey","bitch","motherfucker","whore","dick","cunt","pussy", "dumbass"):
+        elif self.Verb.lower() in ("fuck","hate","you","suck","are","dumb","donkey","bitch","motherfucker","whore","dick","cunt","pussy", "dumbass") and self.Obj.lower() in ("you","fuck","suck","are","dumb","donkey","bitch","motherfucker","whore","dick","cunt","pussy", "dumbass") or (self.Verb.lower() in ("fuck","hate","you","suck","are","dumb","donkey","bitch","motherfucker","whore","dick","cunt","pussy", "dumbass")):
             print("stop being offensive")
             i = 100
             while i >= 1:
@@ -732,10 +913,11 @@ class Player:
                 self.damage(10)
                 break
         if self.health == 0:
-            print("lmao ded\n all your progress will be lost\ngame closing in 7 seconds")
+            print("lmao ded\nall your progress will be lost\ngame closing in 7 seconds")
             self.RemoveProgress()
             time.sleep(7)
             exit()
+
     def Loading(self, var):
         if var == "fight":
             i = 0
@@ -748,6 +930,18 @@ class Player:
                 sys.stdout.write("\r/")
                 time.sleep(0.06)
                 sys.stdout.write("\r-")
+                i += 1
+        elif var == "actone":
+            i = 0
+            while i != 5:
+                time.sleep(0.06)
+                sys.stdout.write("\rloading:\\")
+                time.sleep(0.06)
+                sys.stdout.write("\rloading:|")
+                time.sleep(0.06)
+                sys.stdout.write("\rloading:/")
+                time.sleep(0.06)
+                sys.stdout.write("\rloading:-")
                 i += 1
         
     def MediumFight(self):
@@ -807,32 +1001,14 @@ class Player:
                     continue
         if self.health == 0:
             print("lmao ded, all your progress will lost")
-            print("lmao ded\n all your progress will be lost\ngame closing in 7 seconds")
+            print("lmao ded\nall your progress will be lost\ngame closing in 7 seconds")
             self.RemoveProgress()
             time.sleep(7)
             exit()
         elif self.health != 0:
             print("you survived the fight dude nice one")
 
-    def RemoveProgress(self):
-        checkpoint1 = open("checkpoint.json", "w")
-        newfile = {
-            "stones": 0,
-            "screw": False,
-            "smokes": 0,
-            "key": False,
-            "rkey": False,
-            "gkey": False,
-            "firester": False,
-            "wsword": False,
-            "gryphonkill" : False,
-            "goldensword" : False,
-            "place" : "Entrance"
-        }
-        checkpoint1json = json.dumps(newfile)
-        checkpoint1.write(checkpoint1json)
-        checkpoint1.close()     
-
+    
 if __name__ == "__main__": 
   starts = Player()
   starts.CheckpointLoad()
